@@ -9,8 +9,8 @@ import {
 } from '@heroicons/react/24/outline';
 import Link from 'next/link';
 import { Button } from '@/app/ui/button';
-import { updateInvoice } from '@/app/lib/actions';
-import { FormEvent } from 'react';
+import { State, updateInvoice } from '@/app/lib/actions';
+import { FormEvent, useActionState } from 'react';
 
 export default function EditInvoiceForm({
   invoice,
@@ -19,25 +19,13 @@ export default function EditInvoiceForm({
   invoice: InvoiceForm;
   customers: CustomerField[];
 }) {
-  // Bind the invoice id to the updateInvoice function
+  const initialState: State = { message: null, errors: {} };
   const updateInvoiceWithId = updateInvoice.bind(null, invoice.id);
-
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault(); // Prevent default form submission
-
-    const formData = new FormData(event.currentTarget);
-
-    try {
-      await updateInvoiceWithId(formData); // Call the bound function
-      // No need for client-side routing, handled server-side
-    } catch (error) {
-      console.error('Failed to update invoice', error);
-      // Handle error (e.g., show notification to the user)
-    }
-  };
+  const [state, formAction] = useActionState(updateInvoiceWithId, initialState);
+  console.log('State:', state);
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form action={formAction}>
       {/* <input type="hidden" name="id" value={invoice.id} /> */}
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
         {/* Customer Name */}
